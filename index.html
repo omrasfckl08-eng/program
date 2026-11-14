@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<title>YKS Programı</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #fffaf0; --card: #ffffff; --ink: #2a1810; --soft: #7a6a60; --line: rgba(42,24,16,.12); --sunk: #fbf6ea;
+    --hi: #f2c94c; --hi-soft: #fdf1c7; --coral: #d9534a; --ok: #2f8a57;
+    --mat-bg: #e3ecf8; --mat: #36598a; --fiz-bg: #ece6f7; --fiz: #5d4a8c;
+    --kim-bg: #e0f1e6; --kim: #2f6b48; --biy-bg: #fbe7e0; --biy: #93492f; --tyt-bg: #fbf4de; --tyt: #7a5a10;
+    --display: "Fraunces", Georgia, "Times New Roman", serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root {
+    --bg: #1c1612; --card: #262019; --ink: #f3eadf; --soft: #b3a596; --line: rgba(243,234,223,.13); --sunk: #211b16;
+    --hi: #e5bd45; --hi-soft: #3a3020; --coral: #ef7a70; --ok: #5cc28a;
+    --mat-bg: #22304a; --mat: #a9c4ee; --fiz-bg: #2e2744; --fiz: #c8b8f0; --kim-bg: #1f3a2b; --kim: #9fdcb7;
+    --biy-bg: #43281f; --biy: #f2b9a3; --tyt-bg: #3a3020; --tyt: #ecd08a; color-scheme: dark; } }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.45 var(--body); }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 22px 16px 60px; display: flex; flex-direction: column; gap: 18px; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--hi); outline-offset: 2px; }
+
+  header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+  .kicker { font: 700 11px var(--body); letter-spacing: 1.6px; text-transform: uppercase; color: var(--soft); }
+  h1 { font: 900 clamp(28px, 5vw, 40px)/1.05 var(--display); margin: 4px 0 0; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(transparent 58%, var(--hi) 58%, var(--hi) 92%, transparent 92%); padding: 0 4px; }
+  .hright { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .hright select { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-weight: 600; }
+  .linkbtn { background: none; border: 0; color: var(--soft); text-decoration: underline; cursor: pointer; padding: 0; font-size: 13px; }
+  .role { font: 700 11px var(--body); padding: 4px 10px; border-radius: 99px; background: var(--ink); color: var(--bg); }
+
+  .login { max-width: 380px; margin: 40px auto; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .login h2 { font: 900 24px var(--display); margin: 0; }
+  .login input { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--card); }
+  .login button { border: 0; border-radius: 10px; padding: 10px 12px; background: var(--ink); color: var(--bg); font-weight: 700; cursor: pointer; }
+  .err { color: var(--coral); font-size: 14px; min-height: 1em; }
+
+  .note { background: var(--hi-soft); border-radius: 14px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .note b.lab { font: 800 15px var(--display); white-space: nowrap; }
+  .note p { margin: 0; white-space: pre-wrap; }
+  .special { border-left: 3px solid var(--coral); background: var(--card); border-radius: 0 12px 12px 0; padding: 10px 14px; font-size: 14px; }
+  .special ul { margin: 4px 0 0; padding-left: 18px; }
+
+  .daypick { display: none; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+  .daypick button { flex: 1 0 auto; border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 7px 10px; text-align: center; cursor: pointer; min-width: 52px; }
+  .daypick button small { display: block; font-size: 11px; color: var(--soft); }
+  .daypick button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .daypick button[aria-pressed="true"] small { color: inherit; opacity: .75; }
+
+  .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: start; }
+  .day { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .day.today { border: 2px solid var(--ink); }
+  .day.sat { background: var(--hi-soft); }
+  .dh { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+  .dh b { font: 900 20px var(--display); }
+  .dh span { font-size: 12px; color: var(--soft); }
+  .dh .now { font: 700 10px var(--body); letter-spacing: 1px; text-transform: uppercase; background: var(--ink); color: var(--bg); padding: 2px 7px; border-radius: 99px; }
+  .sec { font: 700 10.5px var(--body); letter-spacing: 1.2px; text-transform: uppercase; color: var(--soft); margin-bottom: -4px; }
+
+  .blk { border-radius: 12px; padding: 9px 10px; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: start; }
+  .blk .t { font-weight: 700; font-size: 14.5px; }
+  .blk .k { font: 700 10px var(--body); letter-spacing: .8px; text-transform: uppercase; opacity: .85; }
+  .blk .h { font-size: 12px; opacity: .85; grid-column: 1; }
+  .blk .konu { grid-column: 1 / -1; color: var(--ink); font-weight: 600; font-size: 13px; line-height: 1.3; margin-top: 4px; }
+  .blk .vids { grid-column: 1 / -1; list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .blk .vids a { display: flex; gap: 6px; align-items: baseline; text-decoration: none; color: var(--ink); font-size: 12.5px; line-height: 1.25; padding: 5px 7px; border-radius: 8px; background: var(--sunk); }
+  .blk .vids a:hover { text-decoration: underline; }
+  .blk .vids a::before { content: "▶"; font-size: 9px; opacity: .7; }
+  .blk .vids a span { margin-left: auto; color: var(--soft); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .blk.tyt { background: var(--tyt-bg); color: var(--tyt); }
+  .blk.mat { background: var(--mat-bg); color: var(--mat); }
+  .blk.fiz { background: var(--fiz-bg); color: var(--fiz); }
+  .blk.kim { background: var(--kim-bg); color: var(--kim); }
+  .blk.biy { background: var(--biy-bg); color: var(--biy); }
+  .blk.video { background: var(--card); box-shadow: inset 0 0 0 1.5px currentColor; }
+  .blk.plain { background: var(--sunk); color: var(--ink); }
+  .blk.done { opacity: .55; }
+  .blk.done .t { text-decoration: line-through; }
+  .chk { grid-column: 2; grid-row: 1 / span 2; width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid currentColor; background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0; }
+  .chk:disabled { cursor: default; }
+  .chk[aria-pressed="true"] { background: currentColor; }
+  .chk[aria-pressed="true"]::after { content: "✓"; color: var(--card); font-weight: 800; font-size: 15px; }
+  .hrs { font-size: 12px; color: var(--soft); border-top: 1px dashed var(--line); padding-top: 8px; display: flex; justify-content: space-between; }
+  .hrs b { color: var(--ink); }
+
+  .track { border-top: 1px solid var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+  .track label { font: 700 10.5px var(--body); letter-spacing: 1px; text-transform: uppercase; color: var(--soft); }
+  .track .ro { background: var(--sunk); border-radius: 8px; padding: 6px 8px; white-space: pre-wrap; }
+  .track .cn { background: var(--hi-soft); border-radius: 8px; padding: 6px 8px; white-space: pre-wrap; }
+  .track input, .track textarea, .note textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--card); padding: 6px 8px; }
+  .track textarea, .note textarea { min-height: 60px; resize: vertical; }
+
+  .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .box h2 { font: 800 18px var(--display); margin: 0 0 8px; }
+  .box ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 14px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--soft); align-items: center; }
+  .legend i { display: inline-block; width: 22px; height: 13px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .card h2 { font: 900 22px var(--display); margin: 0; }
+  .meta { font-size: 13px; color: var(--soft); }
+  .stat { background: var(--sunk); border-radius: 10px; padding: 8px 10px; font-size: 14px; white-space: pre-wrap; }
+  .stat span { display: block; font: 700 10.5px var(--body); letter-spacing: 1px; text-transform: uppercase; color: var(--soft); }
+  .open { display: inline-flex; justify-content: center; text-decoration: none; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 9px 12px; font-weight: 700; }
+
+  .toast { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 99px; font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .toast.on { opacity: 1; }
+  .toast.bad { background: var(--coral); color: #fff; }
+  .fsbtn { width: 100%; border: 0; border-radius: 12px; padding: 12px 14px; background: var(--hi); color: #2a1810; font: 700 15px var(--body); cursor: pointer; }
+
+  @media (max-width: 1100px) { .days { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 760px) {
+    .daypick { display: flex; }
+    .days { grid-template-columns: 1fr; }
+    .day:not(.sel) { display: none; }
+    .bottom { grid-template-columns: 1fr; }
+  }
+</style>
+<meta name="robots" content="noindex">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="kicker" id="kicker">YKS 2027 · Haftalık program</div>
+      <h1 id="title">YKS <em>Programı</em></h1>
+    </div>
+    <div class="hright" id="hright"></div>
+  </header>
+  <div id="view"><p>Yükleniyor…</p></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycby3_YfQlQqsKpyO8qfUKLAjaUf6VvD4g8ka0nOitbBJR74j_qvUt4V2rQ8B5-IRYePi2w/exec";
+
+
+const NAMES = { mat: "Matematik", fiz: "Fizik", kim: "Kimya", biy: "Biyoloji" };
+const RULES = [
+  "Fen videosu her zaman matematikten sonra izlenir; defter açık, not alınarak.",
+  "Testler ve branş denemeleri süre tutularak çözülür.",
+  "Yanlış ve boşlar işaretlenir, Cumartesi yeniden çözülür.",
+  "Cumartesi denemesinden sonra o gün TYT çözülmez.",
+  "Videolar: Fizik Özcan Aykın, Kimya Benim Hocam, Biyoloji Biosem AYT kampı. Sadece konu anlatımı; soru çözüm videoları izlenmez."
+];
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+};
+async function api(body) {
+  let res;
+  try {
+    // Content-Type belirtilmez (text/plain): tarayıcı ön kontrol yapmaz, Google hesap çerezleri gönderilmez.
+    res = await fetch(API, { method: "POST", body: JSON.stringify(body), redirect: "follow", credentials: "omit" });
+  } catch (e) { throw new Error("Bağlantı kurulamadı. İnternetini kontrol edip tekrar dene."); }
+  const j = await res.json().catch(() => null);
+  if (!j) throw new Error("Sunucudan geçersiz cevap geldi.");
+  if (!j.ok) throw new Error(j.error || "Bir hata oldu.");
+  return j.data;
+}
+let toastT;
+function toast(msg, bad) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast on" + (bad ? " bad" : "");
+  clearTimeout(toastT); toastT = setTimeout(() => t.className = "toast", 1800);
+}
+
+/* ---------- giriş ---------- */
+let PW = "";
+function loginView(err) {
+  document.getElementById("kicker").textContent = "YKS 2027 · Haftalık program";
+  document.getElementById("title").innerHTML = "YKS <em>Programı</em>";
+  document.getElementById("hright").innerHTML = "";
+  document.getElementById("view").innerHTML = `
+    <form class="login" id="lf">
+      <h2>Programına giriş</h2>
+      <div class="meta">Koçunun verdiği şifreyi yaz.</div>
+      <label class="kicker" for="pw">Şifre</label>
+      <input id="pw" type="password" autocomplete="current-password" required>
+      <button type="submit" id="lbtn">Giriş</button>
+      <div class="err" id="lerr">${esc(err || "")}</div>
+    </form>`;
+  document.getElementById("lf").addEventListener("submit", e => {
+    e.preventDefault();
+    document.getElementById("lbtn").disabled = true;
+    document.getElementById("lerr").textContent = "Kontrol ediliyor…";
+    start(document.getElementById("pw").value.trim());
+  });
+}
+async function start(pw, slug) {
+  try {
+    const d = await api({ action: "load", pw: pw, slug: slug || "" });
+    PW = pw; store.set("yks:pw", pw);
+    if (d.view === "panel") renderPanel(d.students); else openStudentData(d);
+  } catch (e) {
+    store.set("yks:pw", null);
+    loginView(e.message);
+  }
+}
+function logout() { store.set("yks:pw", null); PW = ""; D = null; loginView(); }
+
+/* ---------- öğrenci sayfası ---------- */
+let D = null, wi = 0, selDay = 0;
+const today = new Date(); today.setHours(0, 0, 0, 0);
+const startOf = w => { const [y, m, d] = w.start.split("-").map(Number); return new Date(y, m - 1, d); };
+const todayIdx = w => { const diff = Math.round((today - startOf(w)) / 864e5); return diff >= 0 && diff < 7 ? diff : -1; };
+const ent = (week, day, field) => { const e = D.entries[week + "|" + day + "|" + field]; return e ? e.v : ""; };
+
+function openStudentData(d) {
+  D = d;
+  const W = D.program.weeks;
+  wi = W.length - 1;
+  W.forEach((w, i) => { const s = startOf(w), e = new Date(s); e.setDate(e.getDate() + 7); if (today >= s && today < e) wi = i; });
+  selDay = Math.max(0, todayIdx(W[wi]));
+  renderStudent();
+}
+
+async function save(week, day, field, value) {
+  D.entries[week + "|" + day + "|" + field] = { v: value, at: new Date().toISOString() };
+  try { await api({ action: "set", pw: PW, slug: D.kod, week: week, day: String(day), field: field, value: value }); toast("Kaydedildi"); }
+  catch (e) { toast("Kaydedilemedi: " + e.message, true); }
+}
+
+function block(w, di, key, b) {
+  const done = ent(w.id, di, "done:" + key) === "1";
+  const coach = D.role === "koc";
+  const chk = `<button class="chk" data-day="${di}" data-key="${key}" aria-pressed="${done}" ${coach ? "disabled" : ""} aria-label="Tamamlandı"></button>`;
+  if (b.plain) return `<div class="blk plain ${done ? "done" : ""}"><div class="t">${esc(b.t)}</div>${chk}${b.sub ? `<div class="h">${esc(b.sub)}</div>` : ""}</div>`;
+  if (!b.s) return `<div class="blk tyt ${done ? "done" : ""}"><div class="t">${esc(b.t)}</div>${chk}<div class="h">Süre tutarak</div></div>`;
+  const vids = (b.v || []).map(([vid, t, m]) => `<li><a href="https://www.youtube.com/watch?v=${encodeURIComponent(vid)}" target="_blank" rel="noopener">${esc(t)}<span>${m} dk</span></a></li>`).join("");
+  const kind = b.type === "video" ? "Video + not" : "Test";
+  return `<div class="blk ${b.s} ${b.type === "video" ? "video" : ""} ${done ? "done" : ""}">
+    <div class="t">${NAMES[b.s]}</div>${chk}
+    <div class="h"><span class="k">${kind}</span> · ${esc(b.h)}</div>
+    ${b.konu ? `<div class="konu">${esc(b.konu)}</div>` : ""}
+    ${vids ? `<ul class="vids">${vids}</ul>` : ""}
+  </div>`;
+}
+
+function track(w, di, day) {
+  const coach = D.role === "koc";
+  const showBrans = !day.sat && day.s !== "Pzt";
+  const f = (field, label, type, ph) => {
+    const v = ent(w.id, di, field);
+    const id = `${field.replace(":", "_")}${di}`;
+    const editable = coach ? field === "note" : field !== "note";
+    if (!editable) return v ? `<label>${label}</label><div class="${field === "note" ? "cn" : "ro"}">${esc(v)}</div>` : "";
+    return `<label for="${id}">${label}</label>` + (type === "area"
+      ? `<textarea id="${id}" data-day="${di}" data-field="${field}" placeholder="${ph}">${esc(v)}</textarea>`
+      : `<input id="${id}" data-day="${di}" data-field="${field}" value="${esc(v)}" placeholder="${ph}" inputmode="decimal">`);
+  };
+  // O günün her TYT branş çalışması için ayrı net alanı: "Türkçe denemesi" -> "TYT Türkçe neti"
+  const nets = showBrans ? day.tyt.map((b, i) => {
+    if (b.plain) return "";
+    const ders = b.t.replace(/\s*(denemesi|rutini)\s*$/i, "").replace(/^Mat$/i, "Matematik");
+    return f("net:t" + i, `TYT ${ders} neti`, "input", "ör. 32,5");
+  }).join("") : "";
+  return `<div class="track">
+    ${nets}
+    ${day.sat ? f("genel", "TYT genel net", "input", "ör. 88,5") : ""}
+    ${f("yaptim", "Bugün ne yaptım?", "area", "Ders, konu, soru sayısı")}
+    ${f("note", "Koç notu", "area", "Bu güne not")}
+  </div>`;
+}
+
+function renderStudent() {
+  const W = D.program.weeks, w = W[wi], ti = todayIdx(w), coach = D.role === "koc";
+  document.getElementById("kicker").textContent = `YKS 2027 · ${D.alan || ""} · Haftalık program`;
+  document.getElementById("title").innerHTML = `${esc(D.name)}'nın <em>Programı</em>`;
+  document.getElementById("hright").innerHTML = `
+    ${coach ? `<button class="linkbtn" id="back" type="button">← Panel</button><span class="role">Koç modu</span>` : ""}
+    <label class="kicker" for="week">Hafta</label>
+    <select id="week">${W.map((x, i) => `<option value="${i}" ${i === wi ? "selected" : ""}>${esc(x.label)}</option>`).join("")}</select>
+    <button class="linkbtn" id="logout" type="button">Çıkış</button>`;
+  document.getElementById("week").onchange = e => { wi = +e.target.value; selDay = Math.max(0, todayIdx(W[wi])); renderStudent(); };
+  document.getElementById("logout").onclick = logout;
+  if (coach) document.getElementById("back").onclick = () => { D = null; start(PW); };
+
+  const wnote = ent(w.id, "w", "coachNote");
+  const note = coach
+    ? `<div class="note"><b class="lab">Koçun notu</b><textarea data-day="w" data-field="coachNote" placeholder="Bu haftaya genel not">${esc(wnote)}</textarea></div>`
+    : (wnote ? `<div class="note"><b class="lab">Koçun notu</b><p>${esc(wnote)}</p></div>` : "");
+
+  const days = w.days.map((day, di) => `
+    <section class="day ${di === ti ? "today" : ""} ${day.sat ? "sat" : ""} ${di === selDay ? "sel" : ""}">
+      <div class="dh"><b>${esc(day.d)}</b>${di === ti ? `<span class="now">Bugün</span>` : `<span>${esc(day.date)}</span>`}</div>
+      <div class="sec">TYT</div>${day.tyt.map((b, i) => block(w, di, "t" + i, b)).join("")}
+      <div class="sec">AYT</div>${day.ayt.map((b, i) => block(w, di, "a" + i, b)).join("")}
+      <div class="hrs">${day.sat ? `<b>${esc(day.hrs)}</b>` : `<span>AYT süresi</span><b>${esc(day.hrs)}</b>`}</div>
+      ${track(w, di, day)}
+    </section>`).join("");
+  const picks = w.days.map((day, di) => `<button type="button" data-pick="${di}" aria-pressed="${di === selDay}">${esc(day.s)}<small>${di === ti ? "bugün" : esc(day.date.split(" ")[0])}</small></button>`).join("");
+
+  document.getElementById("view").innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      ${note}
+      ${w.special && w.special.length ? `<div class="special"><b>Sadece bu hafta</b><ul>${w.special.map(s => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
+      <div class="legend">
+        <span><i style="background:var(--kim-bg)"></i>Dolu kutu = test</span>
+        <span><i style="background:var(--card);box-shadow:inset 0 0 0 1.5px var(--kim)"></i>Çerçeveli kutu = video + not</span>
+        <span>${coach ? "Kutular öğrencinin işaretlerini gösterir." : "Bitirdiğin bloğu işaretle; netlerini ve ne yaptığını gün kartına yaz, kendiliğinden kaydolur."}</span>
+      </div>
+      <nav class="daypick" aria-label="Gün seç">${picks}</nav>
+      <div class="days">${days}</div>
+      <div class="bottom">
+        <div class="box"><h2>Kurallar</h2><ul>${RULES.map(r => `<li>${esc(r)}</li>`).join("")}</ul></div>
+        <div class="box"><h2>Haftalık akış</h2><ul>
+          <li>Pazartesi: TYT yok, Cumartesi denemesi analiz edilir.</li>
+          <li>Cumartesi: TYT genel deneme, AYT yanlış tekrarı, akşam haftalık toplantı.</li>
+          <li>Diğer günler TYT'de Türkçe + Fen ve Mat rutini + Sosyal sırayla gelir.</li>
+        </ul></div>
+      </div>
+    </div>`;
+}
+
+document.addEventListener("click", e => {
+  const c = e.target.closest(".chk");
+  if (c && !c.disabled && D) {
+    const w = D.program.weeks[wi], on = c.getAttribute("aria-pressed") !== "true";
+    save(w.id, c.dataset.day, "done:" + c.dataset.key, on ? "1" : "");
+    renderStudent(); return;
+  }
+  const p = e.target.closest("[data-pick]");
+  if (p && D) { selDay = +p.dataset.pick; renderStudent(); return; }
+  const o = e.target.closest("[data-open]");
+  if (o) { document.getElementById("view").innerHTML = "<p>Yükleniyor…</p>"; start(PW, o.dataset.open); }
+});
+document.addEventListener("change", e => {
+  const el = e.target.closest("[data-field]");
+  if (el && D) save(D.program.weeks[wi].id, el.dataset.day, el.dataset.field, el.value.trim());
+});
+
+/* ---------- koç paneli ---------- */
+function renderPanel(list) {
+  const fmt = iso => { try { return new Date(iso).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } };
+  document.getElementById("kicker").textContent = "YKS 2027 · Koçluk";
+  document.getElementById("title").innerHTML = `Koçluk <em>Paneli</em>`;
+  document.getElementById("hright").innerHTML = `<span class="meta">${list.length} öğrenci</span><button class="linkbtn" id="logout" type="button">Çıkış</button>`;
+  document.getElementById("logout").onclick = logout;
+  document.getElementById("view").innerHTML = `
+    <div class="grid">${list.map(s => `
+      <article class="card">
+        <div><h2>${esc(s.isim)}</h2><div class="meta">${esc(s.alan)} · ${s.last ? "son kayıt " + fmt(s.last) : "henüz kayıt yok"}</div></div>
+        <div class="stat"><span>Son TYT genel net</span>${s.genel ? esc(s.genel.v) + " · " + fmt(s.genel.at) : "—"}</div>
+        <div class="stat"><span>Son "bugün ne yaptım"</span>${s.yaptim ? esc(s.yaptim.v) : "—"}</div>
+        <button type="button" class="open" data-open="${esc(s.kod)}" style="border:0;cursor:pointer">Programını aç</button>
+      </article>`).join("")}</div>
+    <p class="meta">Öğrenci eklemek için E-Tablo'daki "Ogrenciler" sekmesine satır ekleyin; her öğrencinin şifresi farklı olmalı.</p>`;
+}
+
+/* ---------- başlat ---------- */
+const saved = store.get("yks:pw");
+if (saved) start(saved); else loginView();
+</script>
+
+</body>
+</html>
